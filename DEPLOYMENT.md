@@ -32,7 +32,16 @@ flutter build apk --release --dart-define=ITGA_API_KEY=replace-with-backend-API_
 flutter build appbundle --release --dart-define=ITGA_API_KEY=replace-with-backend-API_SECRET_KEY
 ```
 
-The current Gradle release signing still uses debug signing. Configure a real upload keystore before Play Store production.
+Release signing uses `android/key.properties` when that local file exists. The file is intentionally ignored by Git and must contain:
+
+```properties
+storePassword=...
+keyPassword=...
+keyAlias=...
+storeFile=...
+```
+
+If `android/key.properties` is missing, Gradle falls back to debug signing only for local smoke builds. Do not upload a debug-signed AAB to Play Store.
 
 ## iOS Codemagic variables
 
