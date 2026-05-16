@@ -1,0 +1,88 @@
+workflows:
+  ios-test-no-codesign:
+    name: ITGA iOS test build without signing
+    working_directory: .
+    max_build_duration: 90
+    instance_type: mac_mini_m2
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    cache:
+      cache_paths:
+        - $HOME/.pub-cache
+        - ios/Pods
+    scripts:
+      - name: Verify required API key
+        script: |
+          test -n "$ITGA_API_KEY" || { echo "ITGA_API_KEY is required in Codemagic environment variables."; exit 1; }
+      - name: Restore Firebase mobile config from secure variables
+        script: |
+          test -n "$FIREBASE_IOS_PLIST_B64" || { echo "FIREBASE_IOS_PLIST_B64 is required in Codemagic environment variables."; exit 1; }
+          test -n "$FIREBASE_ANDROID_JSON_B64" || { echo "FIREBASE_ANDROID_JSON_B64 is required in Codemagic environment variables."; exit 1; }
+          printf "%s" "$FIREBASE_IOS_PLIST_B64" | base64 --decode > ios/Runner/GoogleService-Info.plist
+          printf "%s" "$FIREBASE_ANDROID_JSON_B64" | base64 --decode > android/app/google-services.json
+          test -s ios/Runner/GoogleService-Info.plist || { echo "ios/Runner/GoogleService-Info.plist was not restored."; exit 1; }
+          test -s android/app/google-services.json || { echo "android/app/google-services.json was not restored."; exit 1; }
+      - name: Install Flutter dependencies
+        script: flutter pub get
+      - name: Analyze Flutter project
+        script: flutter analyze --no-pub --no-fatal-infos
+      - name: Run Flutter tests
+        script: flutter test --no-pub
+      - name: Install iOS pods
+        script: |
+          cd ios
+          pod install
+      - name: Build iOS app without signing
+        script: flutter build ios --release --no-codesign --dart-define=ITGA_API_KEY=$ITGA_API_KEY
+    artifacts:
+      - build/ios/iphoneos/*.app
+      - /tmp/xcodebuild_logs/*.log
+
+  ios-testflight-signed:
+    name: ITGA iOS signed IPA for TestFlight
+    working_directory: .
+    max_build_duration: 120
+    instance_type: mac_mini_m2
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.retrytech.chatter
+    cache:
+      cache_paths:
+        - $HOME/.pub-cache
+        - ios/Pods
+    scripts:
+      - name: Verify required API key
+        script: |
+          test -n "$ITGA_API_KEY" || { echo "ITGA_API_KEY is required in Codemagic environment variables."; exit 1; }
+      - name: Restore Firebase mobile config from secure variables
+        script: |
+          test -n "$FIREBASE_IOS_PLIST_B64" || { echo "FIREBASE_IOS_PLIST_B64 is required in Codemagic environment variables."; exit 1; }
+          test -n "$FIREBASE_ANDROID_JSON_B64" || { echo "FIREBASE_ANDROID_JSON_B64 is required in Codemagic environment variables."; exit 1; }
+          printf "%s" "$FIREBASE_IOS_PLIST_B64" | base64 --decode > ios/Runner/GoogleService-Info.plist
+          printf "%s" "$FIREBASE_ANDROID_JSON_B64" | base64 --decode > android/app/google-services.json
+          test -s ios/Runner/GoogleService-Info.plist || { echo "ios/Runner/GoogleService-Info.plist was not restored."; exit 1; }
+          test -s android/app/google-services.json || { echo "android/app/google-services.json was not restored."; exit 1; }
+      - name: Install Flutter dependencies
+        script: flutter pub get
+      - name: Analyze Flutter project
+        script: flutter analyze --no-pub --no-fatal-infos
+      - name: Run Flutter tests
+        script: flutter test --no-pub
+      - name: Install iOS pods
+        script: |
+          cd ios
+          pod install
+      - name: Set up iOS code signing
+        script: xcode-project use-profiles
+      - name: Build signed IPA
+        script: flutter build ipa --release --dart-define=ITGA_API_KEY=$ITGA_API_KEY
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/ios/archive/*.xcarchive
+      - /tmp/xcodebuild_logs/*.log
