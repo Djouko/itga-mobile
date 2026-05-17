@@ -8,10 +8,11 @@ import 'package:untitled/common/api_service/user_service.dart';
 import 'package:untitled/common/extensions/font_extension.dart';
 import 'package:untitled/localization/languages.dart';
 import 'package:untitled/models/reel_model_extension.dart';
+import 'package:untitled/screens/company/company_public_profile_screen.dart';
 import 'package:untitled/screens/extra_views/back_button.dart';
 import 'package:untitled/screens/follow_button/follow_button.dart';
-import 'package:untitled/screens/reels_screen/reel/reel_page_controller.dart';
 import 'package:untitled/screens/profile_screen/profile_screen.dart';
+import 'package:untitled/screens/reels_screen/reel/reel_page_controller.dart';
 import 'package:untitled/screens/tag_screen/tag_controller.dart';
 import 'package:untitled/screens/tag_screen/tag_screen.dart';
 import 'package:untitled/utilities/const.dart';
@@ -216,16 +217,7 @@ class ReelDescriptionSection extends StatelessWidget {
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
                           if (text.startsWith('@')) {
-                            final username = text.substring(1);
-                            UserService.shared.searchProfile(username, 0,
-                                (users) {
-                              if (users.isNotEmpty) {
-                                Get.to(
-                                    () => ProfileScreen(
-                                        userId: users.first.id ?? 0),
-                                    preventDuplicates: false);
-                              }
-                            });
+                            _openMentionProfile(text);
                           }
                         }),
             ),
@@ -241,5 +233,41 @@ class ReelDescriptionSection extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _openMentionProfile(String rawUsername) {
+    final username = rawUsername.replaceFirst(RegExp(r'^@'), '').trim();
+    if (username.isEmpty) return;
+
+    final companyMatch = RegExp(r'^company-(\d+)$', caseSensitive: false)
+        .firstMatch(username);
+    if (companyMatch != null) {
+      final companyId = int.tryParse(companyMatch.group(1) ?? '');
+      if (companyId != null) {
+        Get.to(() => CompanyPublicProfileScreen(companyId: companyId),
+            preventDuplicates: false);
+        return;
+      }
+    }
+
+    UserService.shared.searchProfile(username, 0, (users) {
+      if (users.isEmpty) return;
+      final lower = username.toLowerCase();
+      final target = users.firstWhereOrNull(
+            (user) => (user.username ?? '').toLowerCase() == lower,
+          ) ??
+          users.first;
+
+      if (target.profileType == 'company' && target.ownedCompany?.id != null) {
+        Get.to(
+            () => CompanyPublicProfileScreen(
+                companyId: target.ownedCompany!.id!),
+            preventDuplicates: false);
+        return;
+      }
+
+      Get.to(() => ProfileScreen(userId: target.id ?? 0),
+          preventDuplicates: false);
+    });
   }
 }

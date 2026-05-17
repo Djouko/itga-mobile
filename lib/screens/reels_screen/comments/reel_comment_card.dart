@@ -307,17 +307,7 @@ class ReelCommentCard extends StatelessWidget {
                               recognizer: TapGestureRecognizer()
                                 ..onTap = () {
                                   if (text.startsWith('@')) {
-                                    final username = text.substring(1);
-                                    UserService.shared
-                                        .searchProfile(username, 0, (users) {
-                                      if (users.isNotEmpty) {
-                                        Get.back();
-                                        Get.to(
-                                            () => ProfileScreen(
-                                                userId: users.first.id ?? 0),
-                                            preventDuplicates: false);
-                                      }
-                                    });
+                                    _openMentionProfile(text);
                                   }
                                 }),
                     ),
@@ -359,5 +349,43 @@ class ReelCommentCard extends StatelessWidget {
       return;
     }
     Get.to(() => ProfileScreen(userId: comment.userId ?? 0));
+  }
+
+  void _openMentionProfile(String rawUsername) {
+    final username = rawUsername.replaceFirst(RegExp(r'^@'), '').trim();
+    if (username.isEmpty) return;
+
+    final companyMatch = RegExp(r'^company-(\d+)$', caseSensitive: false)
+        .firstMatch(username);
+    if (companyMatch != null) {
+      final companyId = int.tryParse(companyMatch.group(1) ?? '');
+      if (companyId != null) {
+        Get.back();
+        Get.to(() => CompanyPublicProfileScreen(companyId: companyId),
+            preventDuplicates: false);
+        return;
+      }
+    }
+
+    UserService.shared.searchProfile(username, 0, (users) {
+      if (users.isEmpty) return;
+      final lower = username.toLowerCase();
+      final target = users.firstWhereOrNull(
+            (user) => (user.username ?? '').toLowerCase() == lower,
+          ) ??
+          users.first;
+
+      Get.back();
+      if (target.profileType == 'company' && target.ownedCompany?.id != null) {
+        Get.to(
+            () => CompanyPublicProfileScreen(
+                companyId: target.ownedCompany!.id!),
+            preventDuplicates: false);
+        return;
+      }
+
+      Get.to(() => ProfileScreen(userId: target.id ?? 0),
+          preventDuplicates: false);
+    });
   }
 }
