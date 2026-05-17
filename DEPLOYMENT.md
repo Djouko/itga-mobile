@@ -4,6 +4,166 @@ Ce depot contient l'application Flutter Android et iOS.
 
 Regle importante: aucun secret reel ne doit etre commite dans Git. Les fichiers Firebase, les cles Android et les identifiants Apple doivent rester en local ou dans les variables securisees de Codemagic.
 
+## 0. Tu es deja sur Codemagic: quoi faire maintenant
+
+Sur ta capture, tu es dans l'ecran de configuration visuelle `Default Workflow`. Pour ITGA, il ne faut pas continuer avec ce workflow visuel, parce que le depot contient deja un fichier `codemagic.yaml` prepare pour iOS. Il faut basculer sur la configuration YAML.
+
+### Etape 0.1: passer du workflow visuel au YAML
+
+1. Reste sur l'application Codemagic `itga-mobile`.
+2. Regarde en haut a droite de l'ecran.
+3. Clique sur `Switch to YAML configuration`.
+4. Si Codemagic demande confirmation, confirme.
+5. Si Codemagic demande le chemin du fichier YAML, ecris exactement:
+
+```text
+codemagic.yaml
+```
+
+6. Enregistre.
+7. Reviens sur la page de l'application si Codemagic te redirige.
+8. Clique sur `Start new build`.
+9. Dans `Branch`, choisis `main`.
+10. Tu dois maintenant voir les workflows du fichier YAML:
+
+```text
+ITGA iOS test build without signing
+ITGA iOS signed IPA for TestFlight
+```
+
+Si tu vois encore seulement `Default Workflow`, c'est que Codemagic n'utilise pas encore le YAML. Dans ce cas, ne lance pas le build. Reviens dans les settings et verifie que la configuration est bien `codemagic.yaml`.
+
+### Etape 0.2: creer le groupe de variables securisees
+
+Le fichier `codemagic.yaml` importe un groupe de variables qui s'appelle exactement:
+
+```text
+itga_mobile
+```
+
+Dans Codemagic:
+
+1. Ouvre l'application `itga-mobile`.
+2. Va dans `Environment variables`.
+3. Clique pour creer un nouveau groupe si Codemagic le demande.
+4. Nom du groupe: `itga_mobile`
+5. Attention: respecte exactement les minuscules et le tiret bas.
+6. Dans ce groupe, ajoute les variables de l'etape suivante.
+
+### Etape 0.3: ajouter les 3 variables obligatoires
+
+Dans le groupe `itga_mobile`, ajoute:
+
+```env
+ITGA_API_KEY=valeur-reelle-de-la-cle-api-backend
+FIREBASE_IOS_PLIST_B64=contenu-base64-du-fichier-ios
+FIREBASE_ANDROID_JSON_B64=contenu-base64-du-fichier-android
+```
+
+Pour chaque variable:
+
+1. Clique `Add variable`.
+2. Mets le nom exactement comme ci-dessus.
+3. Colle la valeur.
+4. Coche `Secure` ou `Secret`.
+5. Enregistre.
+
+Ne mets pas de guillemets autour des valeurs. Ne laisse pas d'espace avant ou apres.
+
+### Etape 0.4: comment obtenir `FIREBASE_IOS_PLIST_B64`
+
+Sur ton ordinateur Windows, ouvre PowerShell:
+
+```powershell
+cd "F:\Workspace\Freelance\IT Girls\Code\chatter\19 decembre\Chatter 19 December 2025\ITGA\chatter_flutter\chatter"
+Test-Path ios\Runner\GoogleService-Info.plist
+```
+
+Si PowerShell affiche `True`, copie la valeur base64:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("ios\Runner\GoogleService-Info.plist")) | Set-Clipboard
+```
+
+Ensuite retourne dans Codemagic et colle dans `FIREBASE_IOS_PLIST_B64`.
+
+Si PowerShell affiche `False`, tu dois aller dans Firebase Console, ouvrir le projet ITGA, ajouter/ouvrir l'app iOS avec bundle id `com.retrytech.chatter`, telecharger `GoogleService-Info.plist`, puis le placer ici:
+
+```text
+chatter_flutter/chatter/ios/Runner/GoogleService-Info.plist
+```
+
+### Etape 0.5: comment obtenir `FIREBASE_ANDROID_JSON_B64`
+
+Dans PowerShell:
+
+```powershell
+cd "F:\Workspace\Freelance\IT Girls\Code\chatter\19 decembre\Chatter 19 December 2025\ITGA\chatter_flutter\chatter"
+Test-Path android\app\google-services.json
+```
+
+Si PowerShell affiche `True`, copie la valeur base64:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("android\app\google-services.json")) | Set-Clipboard
+```
+
+Ensuite retourne dans Codemagic et colle dans `FIREBASE_ANDROID_JSON_B64`.
+
+### Etape 0.6: lancer le premier build iOS sans signature
+
+Ne commence pas par TestFlight. Commence par verifier que l'app compile sur iOS.
+
+1. Dans Codemagic, clique `Start new build`.
+2. Branch: `main`.
+3. Workflow: `ITGA iOS test build without signing`.
+4. Clique `Start new build`.
+5. Attends la fin.
+
+Resultat attendu: le build doit finir en vert.
+
+Si le build echoue:
+
+- Clique sur l'etape rouge.
+- Lis le message exact.
+- Si le message parle de `ITGA_API_KEY`, `FIREBASE_IOS_PLIST_B64` ou `FIREBASE_ANDROID_JSON_B64`, corrige les variables.
+- Si le message parle de `GoogleService-Info.plist`, verifie que le fichier iOS vient bien de Firebase pour `com.retrytech.chatter`.
+- Si le message parle de `pod install`, relance une fois; si ca continue, il faut corriger les pods.
+
+### Etape 0.7: seulement apres le build vert, preparer TestFlight
+
+Pour TestFlight, il faut un compte Apple Developer payant. Sans ca, tu peux faire le test sans signature, mais pas distribuer proprement aux iPhones.
+
+Quand le compte Apple Developer est disponible:
+
+1. Cree l'app id iOS `com.retrytech.chatter` dans Apple Developer.
+2. Cree l'app ITGA dans App Store Connect avec le meme bundle id.
+3. Connecte Apple Developer/App Store Connect a Codemagic.
+4. Verifie que Codemagic trouve un certificat de distribution.
+5. Verifie que Codemagic trouve un provisioning profile App Store.
+6. Lance le workflow `ITGA iOS signed IPA for TestFlight`.
+
+Resultat attendu:
+
+```text
+build/ios/ipa/*.ipa
+```
+
+### Etape 0.8: envoyer aux testeurs iPhone
+
+Une fois le build signe reussi:
+
+1. Ouvre App Store Connect.
+2. Va dans `My Apps`.
+3. Ouvre ITGA.
+4. Va dans `TestFlight`.
+5. Attends que le build soit traite par Apple.
+6. Ajoute ton adresse email comme testeur interne.
+7. Installe l'application `TestFlight` sur ton iPhone.
+8. Accepte l'invitation recue par email.
+9. Installe ITGA depuis TestFlight.
+10. Teste connexion, creation de compte, feed, rooms, jobs, profil entreprise, notifications et appel video.
+
 ## 1. Fichiers locaux obligatoires
 
 Ces fichiers sont volontairement ignores par Git:
