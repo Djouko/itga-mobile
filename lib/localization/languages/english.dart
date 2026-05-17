@@ -546,5 +546,7 @@ const englishStrings = {
   LKeys.interview: 'Interview',
   LKeys.accepted: 'Accepted',
   LKeys.rejected: 'Rejected',
+  LKeys.restorePurchase: 'Restore purchase',
+  LKeys.seconds: 'seconds',
   LKeys.logout: 'Logout',
 };

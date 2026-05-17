@@ -576,30 +576,37 @@ class LKeys {
   static const logout = 'logout';
 }
 
+Map<String, String> _withEnglishFallback(Map<String, String> localizedStrings) {
+  return {
+    ...englishStrings,
+    ...localizedStrings,
+  };
+}
+
 class Languages extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {
-        Language.Arabic.languageCode: arabicStrings,
-        Language.Chinese.languageCode: chineseStrings,
+        Language.Arabic.languageCode: _withEnglishFallback(arabicStrings),
+        Language.Chinese.languageCode: _withEnglishFallback(chineseStrings),
         Language.English.languageCode: englishStrings,
-        Language.Danish.languageCode: danishStrings,
-        Language.Dutch.languageCode: dutchStrings,
-        Language.French.languageCode: frenchStrings,
-        Language.German.languageCode: germanStrings,
-        Language.Greek.languageCode: greekStrings,
-        Language.Hindi.languageCode: hindiStrings,
-        Language.Indonesian.languageCode: indonesianStrings,
-        Language.Italian.languageCode: italianStrings,
-        Language.Japanese.languageCode: japaneseStrings,
-        Language.Korean.languageCode: koreanStrings,
-        Language.Norwegian.languageCode: norwegianStrings,
-        Language.Polish.languageCode: polishStrings,
-        Language.Portuguese.languageCode: portugueseStrings,
-        Language.Russian.languageCode: russianStrings,
-        Language.Spanish.languageCode: spanishStrings,
-        Language.Swedish.languageCode: swedishStrings,
-        Language.Thai.languageCode: thaiStrings,
-        Language.Turkish.languageCode: turkishStrings,
-        Language.Vietnamese.languageCode: vietnameseStrings,
+        Language.Danish.languageCode: _withEnglishFallback(danishStrings),
+        Language.Dutch.languageCode: _withEnglishFallback(dutchStrings),
+        Language.French.languageCode: _withEnglishFallback(frenchStrings),
+        Language.German.languageCode: _withEnglishFallback(germanStrings),
+        Language.Greek.languageCode: _withEnglishFallback(greekStrings),
+        Language.Hindi.languageCode: _withEnglishFallback(hindiStrings),
+        Language.Indonesian.languageCode: _withEnglishFallback(indonesianStrings),
+        Language.Italian.languageCode: _withEnglishFallback(italianStrings),
+        Language.Japanese.languageCode: _withEnglishFallback(japaneseStrings),
+        Language.Korean.languageCode: _withEnglishFallback(koreanStrings),
+        Language.Norwegian.languageCode: _withEnglishFallback(norwegianStrings),
+        Language.Polish.languageCode: _withEnglishFallback(polishStrings),
+        Language.Portuguese.languageCode: _withEnglishFallback(portugueseStrings),
+        Language.Russian.languageCode: _withEnglishFallback(russianStrings),
+        Language.Spanish.languageCode: _withEnglishFallback(spanishStrings),
+        Language.Swedish.languageCode: _withEnglishFallback(swedishStrings),
+        Language.Thai.languageCode: _withEnglishFallback(thaiStrings),
+        Language.Turkish.languageCode: _withEnglishFallback(turkishStrings),
+        Language.Vietnamese.languageCode: _withEnglishFallback(vietnameseStrings),
       };
 }

@@ -11,7 +11,7 @@ import 'package:untitled/common/extensions/font_extension.dart';
 import 'package:untitled/utilities/const.dart';
 
 class FeedScreenTopBar extends StatelessWidget {
-  const FeedScreenTopBar({Key? key}) : super(key: key);
+  const FeedScreenTopBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,19 +45,29 @@ class FeedScreenTopBar extends StatelessWidget {
                         ),
                         if (count > 0)
                           Positioned(
-                            right: -8,
-                            top: -5,
+                            right: -10,
+                            top: -7,
                             child: Container(
-                              padding: const EdgeInsets.all(3),
-                              decoration: const BoxDecoration(
-                                color: cRed,
-                                shape: BoxShape.circle,
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [cMagenta, cRed],
+                                ),
+                                borderRadius: BorderRadius.circular(999),
+                                border: Border.all(color: cWhite, width: 1.2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: cRed.withValues(alpha: 0.28),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                              constraints: const BoxConstraints(minWidth: 20, minHeight: 18),
                               child: Center(
                                 child: Text(
                                   count > 99 ? '99+' : '$count',
-                                  style: MyTextStyle.gilroyBold(size: 9, color: cWhite),
+                                  style: MyTextStyle.gilroyBold(size: 9.5, color: cWhite),
                                 ),
                               ),
                             ),

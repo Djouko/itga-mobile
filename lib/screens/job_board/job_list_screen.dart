@@ -6,6 +6,7 @@ import 'package:untitled/models/job_models.dart';
 import 'package:untitled/screens/extra_views/top_bar.dart';
 import 'package:untitled/screens/job_board/job_detail_screen.dart';
 import 'package:untitled/screens/job_board/job_list_controller.dart';
+import 'package:untitled/screens/job_board/job_theme.dart';
 import 'package:untitled/screens/job_board/saved_jobs_screen.dart';
 import 'package:untitled/screens/job_board/my_applications_screen.dart';
 import 'package:untitled/screens/company/company_auth_screen.dart';
@@ -18,7 +19,7 @@ class JobListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(JobListController());
     return Scaffold(
-      backgroundColor: cBG,
+      backgroundColor: jobSurface(context),
       body: Column(
         children: [
           TopBarForInView(
@@ -33,8 +34,8 @@ class JobListScreen extends StatelessWidget {
               ],
             ),
           ),
-          _searchBar(controller),
-          _filterRow(controller),
+          _searchBar(context, controller),
+          _filterRow(context, controller),
           Expanded(
             child: GetBuilder<JobListController>(
               builder: (ctrl) {
@@ -50,9 +51,9 @@ class JobListScreen extends StatelessWidget {
                         children: [
                           Icon(Icons.wifi_off_rounded, size: 48, color: cLightText.withValues(alpha: 0.5)),
                           const SizedBox(height: 10),
-                          Text('Connexion indisponible', style: MyTextStyle.gilroySemiBold(size: 16, color: cMainText)),
+                          Text('Connexion indisponible', style: MyTextStyle.gilroySemiBold(size: 16, color: jobMainText(context))),
                           const SizedBox(height: 6),
-                          Text('Vérifiez votre réseau puis réessayez.', style: MyTextStyle.gilroyRegular(size: 13, color: cLightText), textAlign: TextAlign.center),
+                          Text('Vérifiez votre réseau puis réessayez.', style: MyTextStyle.gilroyRegular(size: 13, color: jobMutedText(context)), textAlign: TextAlign.center),
                           const SizedBox(height: 12),
                           ElevatedButton(
                             onPressed: () => ctrl.fetchJobs(refresh: true),
@@ -72,9 +73,9 @@ class JobListScreen extends StatelessWidget {
                         children: [
                           Icon(Icons.work_off_outlined, size: 48, color: cLightText.withValues(alpha: 0.5)),
                           const SizedBox(height: 12),
-                          Text(LKeys.noJobOffers.tr, style: MyTextStyle.gilroySemiBold(size: 16, color: cMainText)),
+                          Text(LKeys.noJobOffers.tr, style: MyTextStyle.gilroySemiBold(size: 16, color: jobMainText(context))),
                           const SizedBox(height: 6),
-                          Text(LKeys.noJobOffersDesc.tr, style: MyTextStyle.gilroyRegular(size: 13, color: cLightText), textAlign: TextAlign.center),
+                          Text(LKeys.noJobOffersDesc.tr, style: MyTextStyle.gilroyRegular(size: 13, color: jobMutedText(context)), textAlign: TextAlign.center),
                         ],
                       ),
                     ),
@@ -124,19 +125,19 @@ class JobListScreen extends StatelessWidget {
     );
   }
 
-  Widget _searchBar(JobListController controller) {
+  Widget _searchBar(BuildContext context, JobListController controller) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
       child: TextField(
         controller: controller.searchController,
         onChanged: controller.onSearch,
-        style: MyTextStyle.gilroyRegular(size: 14, color: cMainText),
+        style: MyTextStyle.gilroyRegular(size: 14, color: jobMainText(context)),
         decoration: InputDecoration(
           hintText: LKeys.searchJobs.tr,
           hintStyle: MyTextStyle.gilroyRegular(size: 14, color: cLightText),
           prefixIcon: const Icon(Icons.search, color: cLightText, size: 20),
           filled: true,
-          fillColor: cWhite,
+          fillColor: jobCard(context),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
@@ -144,7 +145,7 @@ class JobListScreen extends StatelessWidget {
     );
   }
 
-  Widget _filterRow(JobListController controller) {
+  Widget _filterRow(BuildContext context, JobListController controller) {
     return GetBuilder<JobListController>(
       builder: (ctrl) {
         return SingleChildScrollView(
@@ -152,23 +153,23 @@ class JobListScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              _filterChip(ctrl.sortBy == 'date' ? LKeys.sortRecent.tr : LKeys.sortRelevance.tr, () {
+              _filterChip(context, ctrl.sortBy == 'date' ? LKeys.sortRecent.tr : LKeys.sortRelevance.tr, () {
                 ctrl.setSortBy(ctrl.sortBy == 'date' ? 'relevance' : 'date');
               }, isActive: true),
               const SizedBox(width: 8),
-              _filterChip(ctrl.selectedContractType ?? LKeys.allContracts.tr, () {
+              _filterChip(context, ctrl.selectedContractType ?? LKeys.allContracts.tr, () {
                 _showContractPicker(ctrl);
               }, isActive: ctrl.selectedContractType != null),
               const SizedBox(width: 8),
-              _filterChip(ctrl.selectedLocationType ?? LKeys.allLocations.tr, () {
+              _filterChip(context, ctrl.selectedLocationType ?? LKeys.allLocations.tr, () {
                 _showLocationPicker(ctrl);
               }, isActive: ctrl.selectedLocationType != null),
               const SizedBox(width: 8),
-              _filterChip(ctrl.selectedExperienceLevel ?? LKeys.allLevels.tr, () {
+              _filterChip(context, ctrl.selectedExperienceLevel ?? LKeys.allLevels.tr, () {
                 _showLevelPicker(ctrl);
               }, isActive: ctrl.selectedExperienceLevel != null),
               const SizedBox(width: 8),
-              _filterChip(_domainLabel(ctrl.selectedDomain), () {
+              _filterChip(context, _domainLabel(ctrl.selectedDomain), () {
                 _showDomainPicker(ctrl);
               }, isActive: ctrl.selectedDomain != null),
             ],
@@ -190,17 +191,17 @@ class JobListScreen extends StatelessWidget {
     return domain != null ? (labels[domain] ?? domain) : 'Domaine';
   }
 
-  Widget _filterChip(String label, VoidCallback onTap, {bool isActive = false}) {
+  Widget _filterChip(BuildContext context, String label, VoidCallback onTap, {bool isActive = false}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? cPrimary.withValues(alpha: 0.1) : cWhite,
+          color: isActive ? cPrimary.withValues(alpha: 0.1) : jobCard(context),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: isActive ? cPrimary : cLightText.withValues(alpha: 0.2)),
+          border: Border.all(color: isActive ? cPrimary : jobBorder(context)),
         ),
-        child: Text(label, style: MyTextStyle.gilroySemiBold(size: 12, color: isActive ? cPrimary : cMainText)),
+        child: Text(label, style: MyTextStyle.gilroySemiBold(size: 12, color: isActive ? cPrimary : jobMainText(context))),
       ),
     );
   }
@@ -210,7 +211,7 @@ class JobListScreen extends StatelessWidget {
     final labels = [LKeys.allContracts, LKeys.stage, LKeys.alternance, LKeys.cdi, LKeys.cdd, LKeys.freelance];
     Get.bottomSheet(
       _PickerSheet(options: options, labels: labels, selected: ctrl.selectedContractType, onSelect: ctrl.setContractFilter),
-      backgroundColor: cWhite,
+      backgroundColor: jobCard(Get.context!),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     );
   }
@@ -220,7 +221,7 @@ class JobListScreen extends StatelessWidget {
     final labels = [LKeys.allLevels, LKeys.junior, LKeys.mid, LKeys.senior];
     Get.bottomSheet(
       _PickerSheet(options: options, labels: labels, selected: ctrl.selectedExperienceLevel, onSelect: ctrl.setExperienceFilter),
-      backgroundColor: cWhite,
+      backgroundColor: jobCard(Get.context!),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     );
   }
@@ -230,7 +231,7 @@ class JobListScreen extends StatelessWidget {
     final labels = [LKeys.allLocations, LKeys.remote, LKeys.hybrid, LKeys.onsite];
     Get.bottomSheet(
       _PickerSheet(options: options, labels: labels, selected: ctrl.selectedLocationType, onSelect: ctrl.setLocationFilter),
-      backgroundColor: cWhite,
+      backgroundColor: jobCard(Get.context!),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     );
   }
@@ -240,7 +241,7 @@ class JobListScreen extends StatelessWidget {
     final labels = ['Tous les domaines', 'Data', 'Dev', 'Ingénierie', 'Design', 'Marketing', 'Autre'];
     Get.bottomSheet(
       _PickerSheet(options: options, labels: labels, selected: ctrl.selectedDomain, onSelect: ctrl.setDomainFilter),
-      backgroundColor: cWhite,
+      backgroundColor: jobCard(Get.context!),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
     );
   }
@@ -264,7 +265,7 @@ class _PickerSheet extends StatelessWidget {
           children: List.generate(options.length, (i) {
             final isSelected = options[i] == selected;
             return ListTile(
-              title: Text(labels[i].tr, style: MyTextStyle.gilroySemiBold(size: 15, color: isSelected ? cPrimary : cMainText)),
+              title: Text(labels[i].tr, style: MyTextStyle.gilroySemiBold(size: 15, color: isSelected ? cPrimary : jobMainText(context))),
               trailing: isSelected ? const Icon(Icons.check_rounded, color: cPrimary, size: 20) : null,
               onTap: () {
                 onSelect(options[i]);
@@ -293,9 +294,10 @@ class _JobCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: cWhite,
+          color: jobCard(context),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: cBlack.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+          border: Border.all(color: jobBorder(context)),
+          boxShadow: jobCardShadow(context),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,9 +320,9 @@ class _JobCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(job.title ?? '', style: MyTextStyle.gilroyBold(size: 15, color: cMainText), maxLines: 1, overflow: TextOverflow.ellipsis),
+                      Text(job.title ?? '', style: MyTextStyle.gilroyBold(size: 15, color: jobMainText(context)), maxLines: 1, overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 2),
-                      Text(job.company?.name ?? '', style: MyTextStyle.gilroyRegular(size: 13, color: cLightText)),
+                      Text(job.company?.name ?? '', style: MyTextStyle.gilroyRegular(size: 13, color: jobMutedText(context))),
                     ],
                   ),
                 ),
@@ -339,10 +341,10 @@ class _JobCard extends StatelessWidget {
               spacing: 6,
               runSpacing: 6,
               children: [
-                if (job.contractType != null) _tag(job.contractType!.tr),
-                if (job.locationType != null) _tag(job.locationType!.tr),
-                if (job.locationCity != null) _tag(job.locationCity!),
-                if (job.experienceLevel != null) _tag(job.experienceLevel!.tr),
+                if (job.contractType != null) _tag(context, job.contractType!.tr),
+                if (job.locationType != null) _tag(context, job.locationType!.tr),
+                if (job.locationCity != null) _tag(context, job.locationCity!),
+                if (job.experienceLevel != null) _tag(context, job.experienceLevel!.tr),
               ],
             ),
             if (job.salaryMin != null || job.salaryMax != null) ...[
@@ -368,14 +370,14 @@ class _JobCard extends StatelessWidget {
     );
   }
 
-  Widget _tag(String label) {
+  Widget _tag(BuildContext context, String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: cPrimary.withValues(alpha: 0.06),
+        color: cPrimary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Text(label, style: MyTextStyle.gilroySemiBold(size: 11, color: cNavy)),
+      child: Text(label, style: MyTextStyle.gilroySemiBold(size: 11, color: jobIsDark(context) ? cCyan : cNavy)),
     );
   }
 }

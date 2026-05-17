@@ -547,4 +547,6 @@ const frenchStrings = {
   LKeys.accepted: 'Acceptée',
   LKeys.rejected: 'Refusée',
   LKeys.logout: 'Déconnexion',
+  LKeys.restorePurchase: 'Restaurer l achat',
+  LKeys.seconds: 'secondes',
 };

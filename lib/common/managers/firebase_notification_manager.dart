@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:untitled/common/api_service/user_service.dart';
+import 'package:untitled/common/controller/notification_badge_controller.dart';
 import 'package:untitled/common/managers/logger.dart';
 import 'package:untitled/common/managers/session_manager.dart';
 import 'package:untitled/screens/notification_screen/notification_screen.dart';
@@ -398,9 +399,10 @@ class FirebaseNotificationManager {
         Loggers.error('FCM topic subscription failed: $error');
       });
 
-      if (kDebugMode)
+      if (kDebugMode) {
         await firebaseMessaging.subscribeToTopic(
             'test_${topic}_${Platform.isIOS ? 'ios' : 'android'}');
+      }
     }
   }
 
@@ -408,9 +410,10 @@ class FirebaseNotificationManager {
     await firebaseMessaging
         .unsubscribeFromTopic('${topic}_${Platform.isIOS ? 'ios' : 'android'}');
 
-    if (kDebugMode)
+    if (kDebugMode) {
       await firebaseMessaging.unsubscribeFromTopic(
           'test_${topic}_${Platform.isIOS ? 'ios' : 'android'}');
+    }
   }
 
   bool hasListenerSet = false;
@@ -441,6 +444,10 @@ class FirebaseNotificationManager {
       final msgId = message.messageId;
       if (msgId != null && (msgId != newMessageId || Platform.isAndroid)) {
         newMessageId = msgId;
+        if (Get.isRegistered<NotificationBadgeController>()) {
+          NotificationBadgeController.to.incrementOptimistically();
+          NotificationBadgeController.to.fetchUnreadCount();
+        }
         showNotification(message);
       }
     });

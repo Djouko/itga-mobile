@@ -9,6 +9,7 @@ import 'package:untitled/localization/languages.dart';
 import 'package:untitled/models/job_models.dart';
 import 'package:untitled/screens/company/company_public_profile_screen.dart';
 import 'package:untitled/screens/extra_views/top_bar.dart';
+import 'package:untitled/screens/job_board/job_theme.dart';
 import 'package:untitled/utilities/const.dart';
 
 class JobDetailScreen extends StatefulWidget {
@@ -60,7 +61,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
         isApplying: isApplying,
       ),
       isScrollControlled: true,
-      backgroundColor: cWhite,
+      backgroundColor: jobCard(context),
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
     );
   }
@@ -100,7 +101,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: cBG,
+      backgroundColor: jobSurface(context),
       body: Column(
         children: [
           TopBarForInView(title: LKeys.jobBoard),
@@ -108,7 +109,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
             child: isLoading
                 ? const Center(child: CircularProgressIndicator(color: cPrimary))
                 : job == null
-                    ? Center(child: Text(LKeys.jobNotFound.tr, style: MyTextStyle.gilroySemiBold(size: 16, color: cMainText)))
+                    ? Center(child: Text(LKeys.jobNotFound.tr, style: MyTextStyle.gilroySemiBold(size: 16, color: jobMainText(context))))
                     : _buildContent(),
           ),
         ],
@@ -143,7 +144,11 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
           // Header
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: cWhite, borderRadius: BorderRadius.circular(16)),
+            decoration: BoxDecoration(
+              color: jobCard(context),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: jobBorder(context)),
+            ),
             child: Row(
               children: [
                 GestureDetector(
@@ -162,7 +167,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(job!.title ?? '', style: MyTextStyle.gilroyBold(size: 18, color: cMainText)),
+                      Text(job!.title ?? '', style: MyTextStyle.gilroyBold(size: 18, color: jobMainText(context))),
                       const SizedBox(height: 4),
                       GestureDetector(
                         onTap: () => _openCompanyProfile(),
@@ -248,7 +253,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
           // Skills
           if (job!.requiredSkills != null && job!.requiredSkills!.isNotEmpty) ...[
             const SizedBox(height: 20),
-            Text(LKeys.jobRequiredSkills.tr, style: MyTextStyle.gilroyBold(size: 16, color: cMainText)),
+            Text(LKeys.jobRequiredSkills.tr, style: MyTextStyle.gilroyBold(size: 16, color: jobMainText(context))),
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,
@@ -282,9 +287,9 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 20),
-        Text(titleKey.tr, style: MyTextStyle.gilroyBold(size: 16, color: cMainText)),
+        Text(titleKey.tr, style: MyTextStyle.gilroyBold(size: 16, color: jobMainText(context))),
         const SizedBox(height: 8),
-        Text(content, style: MyTextStyle.gilroyRegular(size: 14, color: cDarkText)),
+        Text(content, style: MyTextStyle.gilroyRegular(size: 14, color: jobBodyText(context))),
       ],
     );
   }
@@ -292,8 +297,8 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
   Widget _tag(String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: cPrimary.withValues(alpha: 0.06), borderRadius: BorderRadius.circular(8)),
-      child: Text(label, style: MyTextStyle.gilroySemiBold(size: 12, color: cNavy)),
+      decoration: BoxDecoration(color: cPrimary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8)),
+      child: Text(label, style: MyTextStyle.gilroySemiBold(size: 12, color: jobIsDark(context) ? cCyan : cNavy)),
     );
   }
 
@@ -327,31 +332,31 @@ class _ApplySheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(LKeys.applyToJob.tr, style: MyTextStyle.gilroyBold(size: 18, color: cMainText)),
+          Text(LKeys.applyToJob.tr, style: MyTextStyle.gilroyBold(size: 18, color: jobMainText(context))),
           const SizedBox(height: 16),
-          Text(LKeys.coverLetterLabel.tr, style: MyTextStyle.gilroySemiBold(size: 14, color: cMainText)),
+          Text(LKeys.coverLetterLabel.tr, style: MyTextStyle.gilroySemiBold(size: 14, color: jobMainText(context))),
           const SizedBox(height: 6),
           TextField(
             controller: coverLetterCtrl,
             maxLines: 4,
-            style: MyTextStyle.gilroyRegular(size: 14, color: cMainText),
+            style: MyTextStyle.gilroyRegular(size: 14, color: jobMainText(context)),
             decoration: InputDecoration(
               hintText: LKeys.coverLetterHint.tr,
               hintStyle: MyTextStyle.gilroyRegular(size: 14, color: cLightText),
               filled: true,
-              fillColor: cBG,
+              fillColor: jobMutedSurface(context),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
             ),
           ),
           const SizedBox(height: 14),
-          Text(LKeys.cvUploadLabel.tr, style: MyTextStyle.gilroySemiBold(size: 14, color: cMainText)),
+          Text(LKeys.cvUploadLabel.tr, style: MyTextStyle.gilroySemiBold(size: 14, color: jobMainText(context))),
           const SizedBox(height: 6),
           GestureDetector(
             onTap: onPickFile,
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-              decoration: BoxDecoration(color: cBG, borderRadius: BorderRadius.circular(12)),
+              decoration: BoxDecoration(color: jobMutedSurface(context), borderRadius: BorderRadius.circular(12)),
               child: Row(
                 children: [
                   Icon(Icons.attach_file, color: cPrimary, size: 18),
@@ -359,7 +364,7 @@ class _ApplySheet extends StatelessWidget {
                   Expanded(
                     child: Text(
                       selectedFile != null ? selectedFile!.name : LKeys.cvUploadLabel.tr,
-                      style: MyTextStyle.gilroyRegular(size: 14, color: selectedFile != null ? cMainText : cLightText),
+                      style: MyTextStyle.gilroyRegular(size: 14, color: selectedFile != null ? jobMainText(context) : jobMutedText(context)),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),

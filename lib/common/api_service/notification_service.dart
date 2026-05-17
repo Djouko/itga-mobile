@@ -28,10 +28,9 @@ class NotificationService {
     };
     if (extraData != null) dataPayload.addAll(extraData);
 
-    // Video calls (type 20): Send data-only message so it reaches the
-    // background handler and CallKit can show the native incoming call screen.
-    // WhatsApp/Messenger use the same approach — no "notification" key so
-    // Android delivers it to the data handler even when app is killed.
+    // Video calls (type 20): Android stays data-only so the background handler
+    // can show CallKit. iOS receives an APNs alert fallback because PushKit/VoIP
+    // entitlement is not configured in the current iOS project.
     final isVideoCall = extraData?['type'] == '20';
 
     Map<String, dynamic> messageData = {
@@ -44,12 +43,15 @@ class NotificationService {
         "payload": <String, dynamic>{
           "aps": <String, dynamic>{
             "content-available": 1,
-            if (!isVideoCall) "sound": "default",
-            if (!isVideoCall) "badge": 1,
+            if (isVideoCall) "alert": {"title": title, "body": body},
+            "sound": "default",
+            "badge": 1,
           }
         },
-        if (!isVideoCall) "headers": <String, dynamic>{"apns-push-type": "alert"},
-        if (isVideoCall) "headers": <String, dynamic>{"apns-push-type": "voip", "apns-priority": "10"},
+        "headers": <String, dynamic>{
+          "apns-push-type": "alert",
+          if (isVideoCall) "apns-priority": "10",
+        },
       },
     };
 

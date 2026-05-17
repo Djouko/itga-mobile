@@ -23,6 +23,10 @@ class NotificationBadgeController extends GetxController {
     unreadCount.value = count;
   }
 
+  void incrementOptimistically() {
+    unreadCount.value = unreadCount.value + 1;
+  }
+
   Future<void> markAllAsRead() async {
     await CommonService.shared.markNotificationsAsRead();
     unreadCount.value = 0;

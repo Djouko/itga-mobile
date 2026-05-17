@@ -8,6 +8,7 @@ import 'package:untitled/localization/languages.dart';
 import 'package:untitled/models/job_models.dart';
 import 'package:untitled/screens/extra_views/top_bar.dart';
 import 'package:untitled/screens/job_board/job_detail_screen.dart';
+import 'package:untitled/screens/job_board/job_theme.dart';
 import 'package:untitled/utilities/const.dart';
 
 class SavedJobsController extends BaseController {
@@ -76,7 +77,7 @@ class SavedJobsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Get.put(SavedJobsController());
     return Scaffold(
-      backgroundColor: cBG,
+      backgroundColor: jobSurface(context),
       body: Column(
         children: [
           TopBarForInView(title: LKeys.savedJobs),
@@ -95,7 +96,7 @@ class SavedJobsScreen extends StatelessWidget {
                         children: [
                           Icon(Icons.wifi_off_rounded, size: 44, color: cLightText.withValues(alpha: 0.5)),
                           const SizedBox(height: 8),
-                          Text('Impossible de charger vos offres sauvegardées', style: MyTextStyle.gilroySemiBold(size: 14, color: cMainText), textAlign: TextAlign.center),
+                          Text('Impossible de charger vos offres sauvegardées', style: MyTextStyle.gilroySemiBold(size: 14, color: jobMainText(context)), textAlign: TextAlign.center),
                           const SizedBox(height: 10),
                           ElevatedButton(
                             onPressed: () => ctrl.fetchSavedJobs(refresh: true),
@@ -153,9 +154,10 @@ class _SavedJobCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: cWhite,
+          color: jobCard(context),
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: cBlack.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+          border: Border.all(color: jobBorder(context)),
+          boxShadow: jobCardShadow(context),
         ),
         child: Row(
           children: [
@@ -172,9 +174,9 @@ class _SavedJobCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(job.title ?? '', style: MyTextStyle.gilroyBold(size: 14, color: cMainText), maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(job.title ?? '', style: MyTextStyle.gilroyBold(size: 14, color: jobMainText(context)), maxLines: 1, overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 2),
-                  Text(job.company?.name ?? '', style: MyTextStyle.gilroyRegular(size: 12, color: cLightText)),
+                  Text(job.company?.name ?? '', style: MyTextStyle.gilroyRegular(size: 12, color: jobMutedText(context))),
                   if (job.contractType != null) ...[
                     const SizedBox(height: 4),
                     Text(job.contractType!.tr, style: MyTextStyle.gilroySemiBold(size: 11, color: cPrimary)),

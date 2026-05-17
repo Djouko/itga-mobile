@@ -28,9 +28,6 @@ environment:
 # dependencies can be manually updated by changing the version numbers below to
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
-dependency_overrides:
-  package_info_plus: ^8.2.0
-
 dependencies:
   flutter:
     sdk: flutter
@@ -56,6 +53,7 @@ dependencies:
   video_player: ^2.10.1
   cupertino_icons: ^1.0.8
   path_provider: ^2.1.5
+  package_info_plus: ^9.0.1
   photo_view: ^0.15.0
   figma_squircle_updated: ^1.0.1
   like_button: ^2.1.0

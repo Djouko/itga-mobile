@@ -328,6 +328,8 @@ class _CompanyPublicProfileScreenState
   }
 
   Widget _buildHeroCard(Company company) {
+    final isCertified = company.isVerified == 1;
+
     return Container(
       decoration: BoxDecoration(
         color: cWhite,
@@ -394,7 +396,7 @@ class _CompanyPublicProfileScreenState
                               maxLines: 2,
                             ),
                           ),
-                          if (company.isVerified == 1) ...[
+                          if (isCertified) ...[
                             const SizedBox(width: 6),
                             const Icon(Icons.verified,
                                 size: 18, color: cBlueTick),
@@ -434,8 +436,14 @@ class _CompanyPublicProfileScreenState
                           _stat('$_followersCount', LKeys.followers.tr,
                               cHashtagColor),
                           const SizedBox(width: 8),
-                          _stat(null, 'Vérifié ITGA', cGreen,
-                              icon: Icons.verified_user),
+                          _stat(
+                            null,
+                            isCertified ? 'Certifiee ITGA' : 'Non certifiee',
+                            isCertified ? cGreen : cLightText,
+                            icon: isCertified
+                                ? Icons.verified_user
+                                : Icons.shield_outlined,
+                          ),
                         ],
                       ),
                     ],
