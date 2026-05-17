@@ -14,6 +14,7 @@ import 'package:untitled/localization/languages.dart';
 import 'package:untitled/models/job_models.dart';
 import 'package:untitled/screens/company/company_dashboard_screen.dart';
 import 'package:untitled/screens/extra_views/logo_tag.dart';
+import 'package:untitled/screens/login_screen/login_screen.dart';
 import 'package:untitled/utilities/const.dart';
 
 const Color _kDark = cBG;
@@ -422,6 +423,10 @@ class CompanyAuthScreen extends StatelessWidget {
               ),
             ),
           ],
+          if (ctrl.mode != 'verify') ...[
+            const SizedBox(height: 16),
+            _userAuthLink(),
+          ],
         ],
       ),
     );
@@ -682,6 +687,27 @@ class CompanyAuthScreen extends StatelessWidget {
                     ? 'Renvoyer le code (${ctrl.resendSecondsLeft}s)'
                     : 'Renvoyer le code',
                 style: MyTextStyle.gilroySemiBold(size: 13, color: _kMuted)),
+      ),
+    );
+  }
+
+  Widget _userAuthLink() {
+    return Center(
+      child: GestureDetector(
+        onTap: () => Get.off(() => const LoginScreen()),
+        child: RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            style: MyTextStyle.gilroyRegular(size: 13, color: _kMuted),
+            children: [
+              const TextSpan(text: 'Vous etes une utilisatrice ? '),
+              TextSpan(
+                text: 'Connexion / inscription utilisateur',
+                style: MyTextStyle.gilroySemiBold(size: 13, color: _kAccent),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

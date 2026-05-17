@@ -138,31 +138,10 @@ class MyApp extends StatelessWidget {
       fallbackLocale: LANGUAGES.first.language.local,
       debugShowCheckedModeBanner: false,
       title: appName,
-      themeMode: ThemeMode.system,
       theme: ThemeData(
-        useMaterial3: false,
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: cBG,
-        primaryColor: cPrimary,
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: cPrimary,
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: false,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: cDarkBG,
-        primaryColor: cPrimary,
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: cPrimary,
-          brightness: Brightness.dark,
-        ),
-      ),
+          useMaterial3: false,
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent),
       home: const MyHomePage(),
     );
   }
