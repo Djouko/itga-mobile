@@ -70,7 +70,73 @@ Pour chaque variable:
 
 Ne mets pas de guillemets autour des valeurs. Ne laisse pas d'espace avant ou apres.
 
-### Etape 0.4: comment obtenir `FIREBASE_IOS_PLIST_B64`
+### Etape 0.4: generer les valeurs sans te battre avec PowerShell
+
+Cette methode est la plus simple. Elle evite les problemes de presse-papiers, de guillemets et de commandes coupees.
+
+1. Ouvre PowerShell.
+2. Copie cette commande complete.
+3. Colle-la dans PowerShell.
+4. Appuie sur `Entree`.
+
+```powershell
+cd "F:\Workspace\Freelance\IT Girls\Code\chatter\19 decembre\Chatter 19 December 2025\ITGA\chatter_flutter\chatter"
+```
+
+Ensuite lance:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\export-codemagic-env.ps1
+```
+
+Si tout va bien, PowerShell affiche `OK: fichier genere`.
+
+Le script cree ce fichier local:
+
+```text
+chatter_flutter/chatter/codemagic-secrets.local.env
+```
+
+Ouvre ce fichier. Tu verras:
+
+```env
+ITGA_API_KEY=PASTE_BACKEND_API_SECRET_KEY_HERE
+FIREBASE_IOS_PLIST_B64=...
+FIREBASE_ANDROID_JSON_B64=...
+```
+
+Dans Codemagic:
+
+1. Cree ou ouvre le groupe `itga_mobile`.
+2. Ajoute `ITGA_API_KEY`.
+3. Pour la valeur, colle la vraie cle API backend.
+4. Coche `Secure` ou `Secret`.
+5. Ajoute `FIREBASE_IOS_PLIST_B64`.
+6. Pour la valeur, copie tout ce qui est apres `FIREBASE_IOS_PLIST_B64=` dans le fichier local.
+7. Coche `Secure` ou `Secret`.
+8. Ajoute `FIREBASE_ANDROID_JSON_B64`.
+9. Pour la valeur, copie tout ce qui est apres `FIREBASE_ANDROID_JSON_B64=` dans le fichier local.
+10. Coche `Secure` ou `Secret`.
+
+Important: ne copie pas le nom de la variable avec le signe `=`. Dans Codemagic, le nom va dans le champ `Name`, et la valeur va dans le champ `Value`.
+
+Si PowerShell affiche une erreur comme `running scripts is disabled`, utilise bien la commande avec `-ExecutionPolicy Bypass` ci-dessus.
+
+Si PowerShell affiche `GoogleService-Info.plist iOS introuvable`, le fichier iOS Firebase manque ici:
+
+```text
+chatter_flutter/chatter/ios/Runner/GoogleService-Info.plist
+```
+
+Si PowerShell affiche `google-services.json Android introuvable`, le fichier Android Firebase manque ici:
+
+```text
+chatter_flutter/chatter/android/app/google-services.json
+```
+
+Le fichier `codemagic-secrets.local.env` est ignore par Git. Ne le commit jamais.
+
+### Etape 0.5: ancienne methode manuelle pour `FIREBASE_IOS_PLIST_B64`
 
 Sur ton ordinateur Windows, ouvre PowerShell:
 
@@ -93,7 +159,7 @@ Si PowerShell affiche `False`, tu dois aller dans Firebase Console, ouvrir le pr
 chatter_flutter/chatter/ios/Runner/GoogleService-Info.plist
 ```
 
-### Etape 0.5: comment obtenir `FIREBASE_ANDROID_JSON_B64`
+### Etape 0.6: ancienne methode manuelle pour `FIREBASE_ANDROID_JSON_B64`
 
 Dans PowerShell:
 
@@ -110,7 +176,7 @@ Si PowerShell affiche `True`, copie la valeur base64:
 
 Ensuite retourne dans Codemagic et colle dans `FIREBASE_ANDROID_JSON_B64`.
 
-### Etape 0.6: lancer le premier build iOS sans signature
+### Etape 0.7: lancer le premier build iOS sans signature
 
 Ne commence pas par TestFlight. Commence par verifier que l'app compile sur iOS.
 
@@ -130,7 +196,7 @@ Si le build echoue:
 - Si le message parle de `GoogleService-Info.plist`, verifie que le fichier iOS vient bien de Firebase pour `com.retrytech.chatter`.
 - Si le message parle de `pod install`, relance une fois; si ca continue, il faut corriger les pods.
 
-### Etape 0.7: seulement apres le build vert, preparer TestFlight
+### Etape 0.8: seulement apres le build vert, preparer TestFlight
 
 Pour TestFlight, il faut un compte Apple Developer payant. Sans ca, tu peux faire le test sans signature, mais pas distribuer proprement aux iPhones.
 
@@ -149,7 +215,7 @@ Resultat attendu:
 build/ios/ipa/*.ipa
 ```
 
-### Etape 0.8: envoyer aux testeurs iPhone
+### Etape 0.9: envoyer aux testeurs iPhone
 
 Une fois le build signe reussi:
 

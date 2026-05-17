@@ -56,3 +56,7 @@ app.*.map.json
 /ios/build/
 /ios/chatter/
 /ios/Runner/GoogleService-Info.plist
+
+# Local deployment secrets generated for Codemagic. Never commit these files.
+/codemagic-secrets.local.env
+/codemagic-secrets.local.md
